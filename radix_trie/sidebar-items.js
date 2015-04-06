@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["NibbleVec","A data-structure for storing a sequence of 4-bit values."],["Trie","Tries allow collections of string-like keys to be efficiently stored and queried."]],"trait":[["TrieKey","Trait for types which can be used to key a Radix Trie."]]});
+initSidebarItems({"trait":[["TrieKey","Trait for types which can be used to key a Radix Trie."]],"struct":[["NibbleVec","A data-structure for storing a sequence of 4-bit values."],["Trie","Tries allow collections of string-like keys to be efficiently stored and queried."]]});
