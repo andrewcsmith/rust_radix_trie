@@ -62,6 +62,18 @@ This saves space, and also allows the longest prefix of any given key to be foun
 <div class='docblock'><p>Fetch a reference to the given key&#39;s corresponding value (if any).</p>
 </div><h4 id='method.get_mut' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_mut' class='fnname'>get_mut</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut V&gt;</code></h4>
 <div class='docblock'><p>Fetch a mutable reference to the given key&#39;s corresponding value (if any).</p>
+</div><h4 id='method.get_nearest_ancestor_node' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_nearest_ancestor_node' class='fnname'>get_nearest_ancestor_node</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
+<div class='docblock'><p>Fetch a reference to the closest ancestor node of the given key.</p>
+
+<p>If <code>key</code> is encoded as byte-vector <code>b</code>, return the node <code>n</code> in the tree
+such that <code>n</code>&#39;s key&#39;s byte-vector is the longest possible prefix of <code>b</code>, and <code>n</code>
+has a value.</p>
+
+<p>Invariant: <code>result.is_some() =&gt; result.key_value.is_some()</code>.</p>
+</div><h4 id='method.get_nearest_ancestor' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_nearest_ancestor' class='fnname'>get_nearest_ancestor</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
+<div class='docblock'><p>Fetch the closest ancestor <em>value</em> for a given key.</p>
+
+<p>See <code>get_nearest_ancestor_node</code>.</p>
 </div><h4 id='method.insert' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.insert' class='fnname'>insert</a>(&amp;mut self, key: K, value: V) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
 <div class='docblock'><p>Insert the given key-value pair, returning any previous value associated with the key.</p>
 </div><h4 id='method.remove' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
