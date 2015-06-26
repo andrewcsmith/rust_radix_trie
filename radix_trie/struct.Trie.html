@@ -41,9 +41,11 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>radix_trie</a>::<wbr><a class='struct' href=''>Trie</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-822' href='../src/radix_trie/lib.rs.html#34-51'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>radix_trie</a>::<wbr><a class='struct' href=''>Trie</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-822' class='srclink' href='../src/radix_trie/lib.rs.html#34-51' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Trie&lt;K, V&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Data-structure for storing and querying string-like keys and associated values.</p>
@@ -52,17 +54,21 @@
 This saves space, and also allows the longest prefix of any given key to be found.</p>
 
 <p>You can read more about Radix Tries on <a href="http://en.wikipedia.org/wiki/Radix_tree">Wikipedia</a>.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;K, V&gt; <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt; <span class='where'>where K: <a class='trait' href='../radix_trie/trait.TrieKey.html' title='radix_trie::TrieKey'>TrieKey</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;K, V&gt; <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt; <span class='where'>where K: <a class='trait' href='../radix_trie/trait.TrieKey.html' title='radix_trie::TrieKey'>TrieKey</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;</code></h4>
 <div class='docblock'><p>Create an empty Trie with no data.</p>
-</div><h4 id='method.len' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+</div><h4 id='method.len' class='method'><code>fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
 <div class='docblock'><p>Fetch the number of key-value pairs stored in the Trie.</p>
-</div><h4 id='method.is_empty' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.is_empty' class='fnname'>is_empty</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h4 id='method.is_empty' class='method'><code>fn <a href='#method.is_empty' class='fnname'>is_empty</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
 <div class='docblock'><p>Determine if the Trie contains 0 key-value pairs.</p>
-</div><h4 id='method.get' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get' class='fnname'>get</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
+</div><h4 id='method.get' class='method'><code>fn <a href='#method.get' class='fnname'>get</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
 <div class='docblock'><p>Fetch a reference to the given key&#39;s corresponding value (if any).</p>
-</div><h4 id='method.get_mut' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_mut' class='fnname'>get_mut</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut V&gt;</code></h4>
+</div><h4 id='method.get_mut' class='method'><code>fn <a href='#method.get_mut' class='fnname'>get_mut</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut V&gt;</code></h4>
 <div class='docblock'><p>Fetch a mutable reference to the given key&#39;s corresponding value (if any).</p>
-</div><h4 id='method.get_nearest_ancestor_node' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_nearest_ancestor_node' class='fnname'>get_nearest_ancestor_node</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
+</div><h4 id='method.get_node' class='method'><code>fn <a href='#method.get_node' class='fnname'>get_node</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
+<div class='docblock'><p>Fetch a reference to the given key&#39;s corresponding node (if any).</p>
+</div><h4 id='method.get_node_mut' class='method'><code>fn <a href='#method.get_node_mut' class='fnname'>get_node_mut</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
+<div class='docblock'><p>Fetch a mutable reference to the given key&#39;s corresponding node (if any).</p>
+</div><h4 id='method.get_nearest_ancestor_node' class='method'><code>fn <a href='#method.get_nearest_ancestor_node' class='fnname'>get_nearest_ancestor_node</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
 <div class='docblock'><p>Fetch a reference to the closest ancestor node of the given key.</p>
 
 <p>If <code>key</code> is encoded as byte-vector <code>b</code>, return the node <code>n</code> in the tree
@@ -70,21 +76,21 @@ such that <code>n</code>&#39;s key&#39;s byte-vector is the longest possible pre
 has a value.</p>
 
 <p>Invariant: <code>result.is_some() =&gt; result.key_value.is_some()</code>.</p>
-</div><h4 id='method.get_nearest_ancestor' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get_nearest_ancestor' class='fnname'>get_nearest_ancestor</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
+</div><h4 id='method.get_nearest_ancestor' class='method'><code>fn <a href='#method.get_nearest_ancestor' class='fnname'>get_nearest_ancestor</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
 <div class='docblock'><p>Fetch the closest ancestor <em>value</em> for a given key.</p>
 
 <p>See <code>get_nearest_ancestor_node</code>.</p>
-</div><h4 id='method.insert' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.insert' class='fnname'>insert</a>(&amp;mut self, key: K, value: V) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
+</div><h4 id='method.insert' class='method'><code>fn <a href='#method.insert' class='fnname'>insert</a>(&amp;mut self, key: K, value: V) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
 <div class='docblock'><p>Insert the given key-value pair, returning any previous value associated with the key.</p>
-</div><h4 id='method.remove' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
+</div><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
 <div class='docblock'><p>Remove and return the value associated with the given key.</p>
-</div><h4 id='method.iter' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.iter' class='fnname'>iter</a>(&amp;self) -&gt; <a class='struct' href='../radix_trie/struct.Iter.html' title='radix_trie::Iter'>Iter</a>&lt;K, V&gt;</code></h4>
+</div><h4 id='method.iter' class='method'><code>fn <a href='#method.iter' class='fnname'>iter</a>(&amp;self) -&gt; <a class='struct' href='../radix_trie/struct.Iter.html' title='radix_trie::Iter'>Iter</a>&lt;K, V&gt;</code></h4>
 <div class='docblock'><p>Return an iterator over the keys and values of the Trie.</p>
-</div><h4 id='method.keys' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.keys' class='fnname'>keys</a>(&amp;self) -&gt; <a class='struct' href='../radix_trie/struct.Keys.html' title='radix_trie::Keys'>Keys</a>&lt;K, V&gt;</code></h4>
+</div><h4 id='method.keys' class='method'><code>fn <a href='#method.keys' class='fnname'>keys</a>(&amp;self) -&gt; <a class='struct' href='../radix_trie/struct.Keys.html' title='radix_trie::Keys'>Keys</a>&lt;K, V&gt;</code></h4>
 <div class='docblock'><p>Return an iterator over the keys of the Trie.</p>
-</div><h4 id='method.values' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.values' class='fnname'>values</a>(&amp;self) -&gt; <a class='struct' href='../radix_trie/struct.Values.html' title='radix_trie::Values'>Values</a>&lt;K, V&gt;</code></h4>
+</div><h4 id='method.values' class='method'><code>fn <a href='#method.values' class='fnname'>values</a>(&amp;self) -&gt; <a class='struct' href='../radix_trie/struct.Values.html' title='radix_trie::Values'>Values</a>&lt;K, V&gt;</code></h4>
 <div class='docblock'><p>Return an iterator over the values of the Trie.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><a class='stability Stable' title='Stable'></a><code>impl&lt;K: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, V: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>&gt; <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt; <span class='where'>where K: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, V: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, K: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, V: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a></span></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><a class='stability Stable' title='Stable'></a><code>fn <a href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='http://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;K: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, V: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>&gt; <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt; <span class='where'>where K: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, V: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, K: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>, V: <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a></span></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='http://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -117,6 +123,10 @@ has a value.</p>
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>
