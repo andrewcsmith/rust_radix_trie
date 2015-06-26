@@ -644,33 +644,11 @@
 <span id="602">602</span>
 <span id="603">603</span>
 <span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
 </pre><pre class='rust '>
+<span class='doccomment'>//! A wonderful, fast, safe, generic radix trie implementation.</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! To get started, see the docs for `Trie` below.</span>
+
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>nibble_vec</span>;
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>nibble_vec</span>::<span class='ident'>NibbleVec</span>;
@@ -701,6 +679,9 @@
 <span class='doccomment'>/// This saves space, and also allows the longest prefix of any given key to be found.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// You can read more about Radix Tries on [Wikipedia][radix-wiki].</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Lots of the methods on `Trie` return optional values - they can be composed</span>
+<span class='doccomment'>/// nicely using `Option::and_then`.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// [radix-wiki]: http://en.wikipedia.org/wiki/Radix_tree</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
@@ -738,7 +719,7 @@
 
 <span class='comment'>// Public-facing API.</span>
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>K</span>: <span class='ident'>TrieKey</span> {
-    <span class='doccomment'>/// Create an empty Trie with no data.</span>
+    <span class='doccomment'>/// Create an empty Trie.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
         <span class='ident'>Trie</span> {
             <span class='ident'>key</span>: <span class='ident'>NibbleVec</span>::<span class='ident'>new</span>(),
@@ -759,31 +740,45 @@
         <span class='self'>self</span>.<span class='ident'>length</span> <span class='op'>==</span> <span class='number'>0</span>
     }
 
-    <span class='doccomment'>/// Fetch a reference to the given key&#39;s corresponding value (if any).</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>key_fragments</span> <span class='op'>=</span> <span class='ident'>NibbleVec</span>::<span class='ident'>from_byte_vec</span>(<span class='ident'>key</span>.<span class='ident'>encode</span>());
-        <span class='ident'>get</span>(<span class='self'>self</span>, <span class='ident'>key</span>, <span class='ident'>key_fragments</span>)
+    <span class='doccomment'>/// Determine if the trie is a leaf node (has no children).</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_leaf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='self'>self</span>.<span class='ident'>child_count</span> <span class='op'>==</span> <span class='number'>0</span>
     }
 
-    <span class='doccomment'>/// Fetch a mutable reference to the given key&#39;s corresponding value (if any).</span>
+    <span class='doccomment'>/// Get the key stored at this node, if any.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>key</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>K</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>as_ref</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>kv</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>kv</span>.<span class='ident'>key</span>)
+    }
+
+    <span class='doccomment'>/// Get the value stored at this node, if any.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>as_ref</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>kv</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>kv</span>.<span class='ident'>value</span>)
+    }
+
+    <span class='doccomment'>/// Get a mutable reference to the value stored at this node, if any.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>value_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>V</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>as_mut</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>kv</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>kv</span>.<span class='ident'>value</span>)
+    }
+
+    <span class='doccomment'>/// Fetch a reference to the given key&#39;s corresponding value, if any.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>get_node</span>(<span class='ident'>key</span>).<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>t</span><span class='op'>|</span> <span class='ident'>t</span>.<span class='ident'>value_checked</span>(<span class='ident'>key</span>))
+    }
+
+    <span class='doccomment'>/// Fetch a mutable reference to the given key&#39;s corresponding value, if any.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>V</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>key_fragments</span> <span class='op'>=</span> <span class='ident'>NibbleVec</span>::<span class='ident'>from_byte_vec</span>(<span class='ident'>key</span>.<span class='ident'>encode</span>());
-        <span class='ident'>get_mut</span>(<span class='self'>self</span>, <span class='ident'>key</span>, <span class='ident'>key_fragments</span>)
+        <span class='ident'>get_node_mut</span>(<span class='self'>self</span>, <span class='ident'>key_fragments</span>).<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>t</span><span class='op'>|</span> <span class='ident'>t</span>.<span class='ident'>value_checked_mut</span>(<span class='ident'>key</span>))
     }
 
-    <span class='doccomment'>/// Fetch a reference to the given key&#39;s corresponding node (if any).</span>
+    <span class='doccomment'>/// Fetch a reference to the given key&#39;s corresponding node, if any.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Note that there is no mutable version of this method, as mutating</span>
+    <span class='doccomment'>/// subtries directly violates the key-structure of the trie.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_node</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>key_fragments</span> <span class='op'>=</span> <span class='ident'>NibbleVec</span>::<span class='ident'>from_byte_vec</span>(<span class='ident'>key</span>.<span class='ident'>encode</span>());
         <span class='ident'>get_node</span>(<span class='self'>self</span>, <span class='ident'>key_fragments</span>)
     }
-
-    <span class='doccomment'>/// Fetch a mutable reference to the given key&#39;s corresponding node (if any).</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_node_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>key_fragments</span> <span class='op'>=</span> <span class='ident'>NibbleVec</span>::<span class='ident'>from_byte_vec</span>(<span class='ident'>key</span>.<span class='ident'>encode</span>());
-        <span class='ident'>get_node_mut</span>(<span class='self'>self</span>, <span class='ident'>key_fragments</span>)
-    }
-
-
 
     <span class='doccomment'>/// Fetch a reference to the closest ancestor node of the given key.</span>
     <span class='doccomment'>///</span>
@@ -792,17 +787,16 @@
     <span class='doccomment'>/// has a value.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Invariant: `result.is_some() =&gt; result.key_value.is_some()`.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_nearest_ancestor_node</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_ancestor</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>key_fragments</span> <span class='op'>=</span> <span class='ident'>NibbleVec</span>::<span class='ident'>from_byte_vec</span>(<span class='ident'>key</span>.<span class='ident'>encode</span>());
-        <span class='self'>self</span>.<span class='ident'>get_nearest_ancestor_node_recursive</span>(<span class='ident'>key_fragments</span>)
+        <span class='self'>self</span>.<span class='ident'>get_ancestor_node_recursive</span>(<span class='ident'>key_fragments</span>)
     }
 
     <span class='doccomment'>/// Fetch the closest ancestor *value* for a given key.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// See `get_nearest_ancestor_node`.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_nearest_ancestor</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>get_nearest_ancestor_node</span>(<span class='ident'>key</span>)
-            .<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>trie</span><span class='op'>|</span> <span class='ident'>trie</span>.<span class='ident'>key_value</span>.<span class='ident'>as_ref</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>kv</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>kv</span>.<span class='ident'>value</span>))
+    <span class='doccomment'>/// See `get_ancestor` for precise semantics, this is just a shortcut.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_ancestor_value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>get_ancestor</span>(<span class='ident'>key</span>).<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>t</span><span class='op'>|</span> <span class='ident'>t</span>.<span class='ident'>value</span>())
     }
 
     <span class='doccomment'>/// Insert the given key-value pair, returning any previous value associated with the key.</span>
@@ -848,66 +842,6 @@
     (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>e</span>:<span class='ident'>item</span>) <span class='op'>=&gt;</span> { <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>e</span> }
 }
 
-<span class='doccomment'>/// Macro to parametrise over mutability in get methods.</span>
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>get_function</span> {
-    (
-        <span class='ident'>name</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span>,
-        <span class='ident'>mutability</span>: $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>:<span class='ident'>tt</span>)<span class='op'>*</span>
-    ) <span class='op'>=&gt;</span> {
-    <span class='macro'>id</span><span class='macro'>!</span>(<span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span>(
-            <span class='ident'>trie</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span>,
-            <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>,
-            <span class='kw-2'>mut</span> <span class='ident'>key_fragments</span>: <span class='ident'>NibbleVec</span>)
-            <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>V</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>K</span>: <span class='ident'>TrieKey</span>
-        {
-            <span class='comment'>// Handle retrieval at the root.</span>
-            <span class='kw'>if</span> <span class='ident'>key_fragments</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
-                <span class='kw'>return</span> <span class='kw'>match</span> <span class='ident'>trie</span>.<span class='ident'>key_value</span> {
-                    <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>kv</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>kv</span>.<span class='ident'>value</span>),
-                    <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
-                };
-            }
-
-            <span class='kw'>let</span> <span class='ident'>bucket</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>get</span>(<span class='number'>0</span>) <span class='kw'>as</span> <span class='ident'>usize</span>;
-
-            <span class='kw'>match</span> <span class='ident'>trie</span>.<span class='ident'>children</span>[<span class='ident'>bucket</span>] {
-                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
-                <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>existing_child</span>) <span class='op'>=&gt;</span> {
-                    <span class='kw'>match</span> <span class='ident'>match_keys</span>(<span class='kw-2'>&amp;</span><span class='ident'>key_fragments</span>, <span class='kw-2'>&amp;</span><span class='ident'>existing_child</span>.<span class='ident'>key</span>) {
-                        <span class='ident'>KeyMatch</span>::<span class='ident'>Full</span> <span class='op'>=&gt;</span> {
-                            <span class='kw'>match</span> <span class='ident'>existing_child</span>.<span class='ident'>key_value</span> {
-                                <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>kv</span>) <span class='op'>=&gt;</span> {
-                                    <span class='ident'>check_keys</span>(<span class='kw-2'>&amp;</span><span class='ident'>kv</span>.<span class='ident'>key</span>, <span class='ident'>key</span>);
-                                    <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>kv</span>.<span class='ident'>value</span>)
-                                },
-                                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
-                            }
-                        },
-
-                        <span class='ident'>KeyMatch</span>::<span class='ident'>Partial</span>(<span class='ident'>idx</span>) <span class='op'>=&gt;</span> {
-                            <span class='kw'>let</span> <span class='ident'>new_key_fragments</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>split</span>(<span class='ident'>idx</span>);
-
-                            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>(<span class='kw-2'>&amp;</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='op'>*</span><span class='ident'>existing_child</span>, <span class='ident'>key</span>, <span class='ident'>new_key_fragments</span>)
-                        },
-
-                        <span class='ident'>KeyMatch</span>::<span class='ident'>FirstPrefix</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
-
-                        <span class='ident'>KeyMatch</span>::<span class='ident'>SecondPrefix</span> <span class='op'>=&gt;</span> {
-                            <span class='kw'>let</span> <span class='ident'>prefix_length</span> <span class='op'>=</span> <span class='ident'>existing_child</span>.<span class='ident'>key</span>.<span class='ident'>len</span>();
-                            <span class='kw'>let</span> <span class='ident'>new_key_fragments</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>split</span>(<span class='ident'>prefix_length</span>);
-
-                            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>(<span class='kw-2'>&amp;</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='op'>*</span><span class='ident'>existing_child</span>, <span class='ident'>key</span>, <span class='ident'>new_key_fragments</span>)
-                        }
-                    }
-                }
-            }
-        });
-    }
-}
-
-<span class='macro'>get_function</span><span class='macro'>!</span>(<span class='ident'>name</span>: <span class='ident'>get_mut</span>, <span class='ident'>mutability</span>: <span class='kw-2'>mut</span>);
-<span class='macro'>get_function</span><span class='macro'>!</span>(<span class='ident'>name</span>: <span class='ident'>get</span>, <span class='ident'>mutability</span>: );
-
 <span class='doccomment'>/// Macro to parametrise over mutability in get_node methods.</span>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>get_node_function</span> {
     (
@@ -917,10 +851,9 @@
         <span class='macro'>id</span><span class='macro'>!</span>(<span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span>(
             <span class='ident'>trie</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span>,
             <span class='kw-2'>mut</span> <span class='ident'>key_fragments</span>: <span class='ident'>NibbleVec</span>
-        ) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>K</span>: <span class='ident'>TrieKey</span> {
+        ) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> <span class='kw'>where</span> <span class='ident'>K</span>: <span class='ident'>TrieKey</span> {
             <span class='comment'>// Handle retrieval at the root.</span>
             <span class='kw'>if</span> <span class='ident'>key_fragments</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
-                <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;hello&quot;</span>);
                 <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>trie</span>);
             }
 
@@ -933,14 +866,14 @@
                         <span class='ident'>KeyMatch</span>::<span class='ident'>Full</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>existing_child</span>),
                         <span class='ident'>KeyMatch</span>::<span class='ident'>Partial</span>(<span class='ident'>idx</span>) <span class='op'>=&gt;</span> {
                             <span class='kw'>let</span> <span class='ident'>new_key_fragments</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>split</span>(<span class='ident'>idx</span>);
-                            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>(<span class='kw-2'>&amp;</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='op'>*</span><span class='ident'>existing_child</span>, <span class='ident'>new_key_fragments</span>)
+                            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>(<span class='ident'>existing_child</span>, <span class='ident'>new_key_fragments</span>)
                         },
-                        <span class='ident'>KeyMatch</span>::<span class='ident'>FirstPrefix</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>existing_child</span>),
+                        <span class='ident'>KeyMatch</span>::<span class='ident'>FirstPrefix</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
                         <span class='ident'>KeyMatch</span>::<span class='ident'>SecondPrefix</span> <span class='op'>=&gt;</span> {
                             <span class='kw'>let</span> <span class='ident'>prefix_length</span> <span class='op'>=</span> <span class='ident'>existing_child</span>.<span class='ident'>key</span>.<span class='ident'>len</span>();
                             <span class='kw'>let</span> <span class='ident'>new_key_fragments</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>split</span>(<span class='ident'>prefix_length</span>);
 
-                            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>(<span class='kw-2'>&amp;</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='op'>*</span><span class='ident'>existing_child</span>, <span class='ident'>new_key_fragments</span>)
+                            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>(<span class='ident'>existing_child</span>, <span class='ident'>new_key_fragments</span>)
                         }
                     }
                 }
@@ -951,7 +884,6 @@
 
 <span class='macro'>get_node_function</span><span class='macro'>!</span>(<span class='ident'>name</span>: <span class='ident'>get_node_mut</span>, <span class='ident'>mutability</span>: <span class='kw-2'>mut</span>);
 <span class='macro'>get_node_function</span><span class='macro'>!</span>(<span class='ident'>name</span>: <span class='ident'>get_node</span>, <span class='ident'>mutability</span>: );
-
 
 <span class='comment'>// Implementation details.</span>
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>K</span>: <span class='ident'>TrieKey</span> {
@@ -964,6 +896,22 @@
             <span class='ident'>child_count</span>: <span class='number'>0</span>,
             <span class='ident'>length</span>: <span class='number'>1</span>
         }
+    }
+
+    <span class='doccomment'>/// Get the value whilst checking a key match.</span>
+    <span class='kw'>fn</span> <span class='ident'>value_checked</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>as_ref</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>kv</span><span class='op'>|</span> {
+            <span class='ident'>check_keys</span>(<span class='kw-2'>&amp;</span><span class='ident'>kv</span>.<span class='ident'>key</span>, <span class='ident'>key</span>);
+            <span class='kw-2'>&amp;</span><span class='ident'>kv</span>.<span class='ident'>value</span>
+        })
+    }
+
+    <span class='comment'>// Get a mutable value whilst checking a key match.</span>
+    <span class='kw'>fn</span> <span class='ident'>value_checked_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>V</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>as_mut</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>kv</span><span class='op'>|</span> {
+            <span class='ident'>check_keys</span>(<span class='kw-2'>&amp;</span><span class='ident'>kv</span>.<span class='ident'>key</span>, <span class='ident'>key</span>);
+            <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>kv</span>.<span class='ident'>value</span>
+        })
     }
 
     <span class='doccomment'>/// Add a child at the given index, given that none exists there already.</span>
@@ -1015,7 +963,7 @@
         <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>as_ref</span>().<span class='ident'>map</span>(<span class='op'>|</span>_<span class='op'>|</span> <span class='self'>self</span>)
     }
 
-    <span class='kw'>fn</span> <span class='ident'>get_nearest_ancestor_node_recursive</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>mut</span> <span class='ident'>key_fragments</span>: <span class='ident'>NibbleVec</span>)
+    <span class='kw'>fn</span> <span class='ident'>get_ancestor_node_recursive</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>mut</span> <span class='ident'>key_fragments</span>: <span class='ident'>NibbleVec</span>)
     <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>if</span> <span class='ident'>key_fragments</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
             <span class='kw'>return</span> <span class='self'>self</span>.<span class='ident'>as_value_node</span>();
@@ -1032,7 +980,7 @@
                         <span class='kw'>let</span> <span class='ident'>prefix_length</span> <span class='op'>=</span> <span class='ident'>existing_child</span>.<span class='ident'>key</span>.<span class='ident'>len</span>();
                         <span class='kw'>let</span> <span class='ident'>new_key_tail</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>split</span>(<span class='ident'>prefix_length</span>);
 
-                        <span class='ident'>existing_child</span>.<span class='ident'>get_nearest_ancestor_node_recursive</span>(<span class='ident'>new_key_tail</span>)
+                        <span class='ident'>existing_child</span>.<span class='ident'>get_ancestor_node_recursive</span>(<span class='ident'>new_key_tail</span>)
                     },
                     <span class='ident'>KeyMatch</span>::<span class='ident'>FirstPrefix</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
                 }

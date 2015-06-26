@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-822' class='srclink' href='../src/radix_trie/lib.rs.html#34-51' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-822' class='srclink' href='../src/radix_trie/lib.rs.html#41-58' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Trie&lt;K, V&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Data-structure for storing and querying string-like keys and associated values.</p>
@@ -54,21 +54,33 @@
 This saves space, and also allows the longest prefix of any given key to be found.</p>
 
 <p>You can read more about Radix Tries on <a href="http://en.wikipedia.org/wiki/Radix_tree">Wikipedia</a>.</p>
+
+<p>Lots of the methods on <code>Trie</code> return optional values - they can be composed
+nicely using <code>Option::and_then</code>.</p>
 </div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;K, V&gt; <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt; <span class='where'>where K: <a class='trait' href='../radix_trie/trait.TrieKey.html' title='radix_trie::TrieKey'>TrieKey</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;</code></h4>
-<div class='docblock'><p>Create an empty Trie with no data.</p>
+<div class='docblock'><p>Create an empty Trie.</p>
 </div><h4 id='method.len' class='method'><code>fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
 <div class='docblock'><p>Fetch the number of key-value pairs stored in the Trie.</p>
 </div><h4 id='method.is_empty' class='method'><code>fn <a href='#method.is_empty' class='fnname'>is_empty</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
 <div class='docblock'><p>Determine if the Trie contains 0 key-value pairs.</p>
+</div><h4 id='method.is_leaf' class='method'><code>fn <a href='#method.is_leaf' class='fnname'>is_leaf</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Determine if the trie is a leaf node (has no children).</p>
+</div><h4 id='method.key' class='method'><code>fn <a href='#method.key' class='fnname'>key</a>(&amp;self) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;K&gt;</code></h4>
+<div class='docblock'><p>Get the key stored at this node, if any.</p>
+</div><h4 id='method.value' class='method'><code>fn <a href='#method.value' class='fnname'>value</a>(&amp;self) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
+<div class='docblock'><p>Get the value stored at this node, if any.</p>
+</div><h4 id='method.value_mut' class='method'><code>fn <a href='#method.value_mut' class='fnname'>value_mut</a>(&amp;mut self) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut V&gt;</code></h4>
+<div class='docblock'><p>Get a mutable reference to the value stored at this node, if any.</p>
 </div><h4 id='method.get' class='method'><code>fn <a href='#method.get' class='fnname'>get</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
-<div class='docblock'><p>Fetch a reference to the given key&#39;s corresponding value (if any).</p>
+<div class='docblock'><p>Fetch a reference to the given key&#39;s corresponding value, if any.</p>
 </div><h4 id='method.get_mut' class='method'><code>fn <a href='#method.get_mut' class='fnname'>get_mut</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut V&gt;</code></h4>
-<div class='docblock'><p>Fetch a mutable reference to the given key&#39;s corresponding value (if any).</p>
+<div class='docblock'><p>Fetch a mutable reference to the given key&#39;s corresponding value, if any.</p>
 </div><h4 id='method.get_node' class='method'><code>fn <a href='#method.get_node' class='fnname'>get_node</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
-<div class='docblock'><p>Fetch a reference to the given key&#39;s corresponding node (if any).</p>
-</div><h4 id='method.get_node_mut' class='method'><code>fn <a href='#method.get_node_mut' class='fnname'>get_node_mut</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut <a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
-<div class='docblock'><p>Fetch a mutable reference to the given key&#39;s corresponding node (if any).</p>
-</div><h4 id='method.get_nearest_ancestor_node' class='method'><code>fn <a href='#method.get_nearest_ancestor_node' class='fnname'>get_nearest_ancestor_node</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
+<div class='docblock'><p>Fetch a reference to the given key&#39;s corresponding node, if any.</p>
+
+<p>Note that there is no mutable version of this method, as mutating
+subtries directly violates the key-structure of the trie.</p>
+</div><h4 id='method.get_ancestor' class='method'><code>fn <a href='#method.get_ancestor' class='fnname'>get_ancestor</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
 <div class='docblock'><p>Fetch a reference to the closest ancestor node of the given key.</p>
 
 <p>If <code>key</code> is encoded as byte-vector <code>b</code>, return the node <code>n</code> in the tree
@@ -76,10 +88,10 @@ such that <code>n</code>&#39;s key&#39;s byte-vector is the longest possible pre
 has a value.</p>
 
 <p>Invariant: <code>result.is_some() =&gt; result.key_value.is_some()</code>.</p>
-</div><h4 id='method.get_nearest_ancestor' class='method'><code>fn <a href='#method.get_nearest_ancestor' class='fnname'>get_nearest_ancestor</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
+</div><h4 id='method.get_ancestor_value' class='method'><code>fn <a href='#method.get_ancestor_value' class='fnname'>get_ancestor_value</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
 <div class='docblock'><p>Fetch the closest ancestor <em>value</em> for a given key.</p>
 
-<p>See <code>get_nearest_ancestor_node</code>.</p>
+<p>See <code>get_ancestor</code> for precise semantics, this is just a shortcut.</p>
 </div><h4 id='method.insert' class='method'><code>fn <a href='#method.insert' class='fnname'>insert</a>(&amp;mut self, key: K, value: V) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
 <div class='docblock'><p>Insert the given key-value pair, returning any previous value associated with the key.</p>
 </div><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
