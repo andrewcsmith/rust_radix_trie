@@ -705,6 +705,7 @@
 <span id="663">663</span>
 <span id="664">664</span>
 <span id="665">665</span>
+<span id="666">666</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A wonderful, fast, safe, generic radix trie implementation.</span>
 <span class='doccomment'>//!</span>
@@ -1186,6 +1187,7 @@
 
     <span class='doccomment'>/// Helper function for removing the single child of a node.</span>
     <span class='kw'>fn</span> <span class='ident'>take_only_child</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> {
+        <span class='macro'>debug_assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>child_count</span> <span class='op'>==</span> <span class='number'>1</span>);
         <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>0</span> .. <span class='ident'>BRANCH_FACTOR</span> {
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>child</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>take_child</span>(<span class='ident'>i</span>) {
                 <span class='kw'>return</span> <span class='ident'>child</span>;
@@ -1253,13 +1255,13 @@
     <span class='doccomment'>/// Having removed the value from a node, work out if the node itself should be deleted.</span>
     <span class='doccomment'>/// Depending on the number of children, this method does one of three things.</span>
     <span class='doccomment'>///     0 children =&gt; Delete the node if it is valueless, otherwise DoNothing.</span>
-    <span class='doccomment'>///     1 child =&gt; Replace the current node by its child.</span>
+    <span class='doccomment'>///     1 child =&gt; Replace the current node by its child if it is valueless.</span>
     <span class='doccomment'>///     2 or more children =&gt; DoNothing.</span>
     <span class='kw'>fn</span> <span class='ident'>delete_node</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>DeleteAction</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>child_count</span> {
             <span class='number'>0</span> <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>is_some</span>() <span class='op'>=&gt;</span> <span class='ident'>DoNothing</span>,
             <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='ident'>Delete</span>,
-            <span class='number'>1</span> <span class='op'>=&gt;</span> {
+            <span class='number'>1</span> <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>is_none</span>() <span class='op'>=&gt;</span> {
                 <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>child</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>take_only_child</span>();
 
                 <span class='comment'>// Join the child&#39;s key onto the existing one.</span>
