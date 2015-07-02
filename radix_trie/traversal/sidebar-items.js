@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Traversal","Trait capturing a traversal of a trie."],["TraversalMut","Trait capturing a traversal of a trie."]]});
+initSidebarItems({"trait":[["RefTraversal","Trait capturing a traversal of a trie."],["RefTraversalMut","Trait capturing a traversal of a trie."],["Traversal","Trait capturing a traversal of a trie."],["TraversalMut","Trait capturing a traversal of a trie."]]});
