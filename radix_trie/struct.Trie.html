@@ -92,6 +92,10 @@ has a value.</p>
 <div class='docblock'><p>Fetch the closest ancestor <em>value</em> for a given key.</p>
 
 <p>See <code>get_ancestor</code> for precise semantics, this is just a shortcut.</p>
+</div><h4 id='method.get_descendant' class='method'><code>fn <a href='#method.get_descendant' class='fnname'>get_descendant</a>(&amp;self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../radix_trie/struct.Trie.html' title='radix_trie::Trie'>Trie</a>&lt;K, V&gt;&gt;</code></h4>
+<div class='docblock'><p>Fetch the closest descendant for a given key.</p>
+
+<p>If the key is in the trie, this is the same as <code>get_node</code>.</p>
 </div><h4 id='method.insert' class='method'><code>fn <a href='#method.insert' class='fnname'>insert</a>(&amp;mut self, key: K, value: V) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
 <div class='docblock'><p>Insert the given key-value pair, returning any previous value associated with the key.</p>
 </div><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, key: &amp;K) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>

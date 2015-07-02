@@ -166,6 +166,7 @@
 <span id="124">124</span>
 <span id="125">125</span>
 <span id="126">126</span>
+<span id="127">127</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> {<span class='ident'>Trie</span>, <span class='ident'>TrieKey</span>, <span class='ident'>NibbleVec</span>};
 <span class='kw'>use</span> <span class='ident'>keys</span>::{<span class='ident'>match_keys</span>, <span class='ident'>KeyMatch</span>};
@@ -181,6 +182,7 @@
     (<span class='boolval'>true</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>x</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>y</span>:<span class='ident'>expr</span>) <span class='op'>=&gt;</span> { <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>x</span> };
 }
 
+<span class='comment'>// FIXME: Use () default types once 1.2/1.3 lands.</span>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>make_traversal_trait</span> {
     (
         <span class='ident'>name</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span>,
