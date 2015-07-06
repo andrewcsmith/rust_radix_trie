@@ -644,6 +644,29 @@
 <span id="602">602</span>
 <span id="603">603</span>
 <span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A wonderful, fast, safe, generic radix trie implementation.</span>
 <span class='doccomment'>//!</span>
@@ -717,6 +740,22 @@
     <span class='ident'>Replace</span>(<span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>Trie</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span>),
     <span class='ident'>Delete</span>,
     <span class='ident'>DoNothing</span>
+}
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='ident'>DeleteAction</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>is_delete</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>Delete</span> <span class='op'>=&gt;</span> <span class='boolval'>true</span>,
+            _ <span class='op'>=&gt;</span> <span class='boolval'>false</span>
+        }
+    }
+
+    <span class='kw'>fn</span> <span class='ident'>is_do_nothing</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+            <span class='ident'>DoNothing</span> <span class='op'>=&gt;</span> <span class='boolval'>true</span>,
+            _ <span class='op'>=&gt;</span> <span class='boolval'>false</span>
+        }
+    }
 }
 
 <span class='comment'>// Public-facing API.</span>
@@ -820,8 +859,10 @@
         <span class='kw'>let</span> <span class='ident'>key_fragments</span> <span class='op'>=</span> <span class='ident'>NibbleVec</span>::<span class='ident'>from_byte_vec</span>(<span class='ident'>key</span>.<span class='ident'>encode</span>());
 
         <span class='comment'>// Use the recursive removal function but ignore its delete action.</span>
-        <span class='comment'>// The root can&#39;t be replaced or deleted.</span>
-        <span class='ident'>Remove</span>::<span class='ident'>run</span>(<span class='self'>self</span>, <span class='ident'>key</span>, (), <span class='ident'>key_fragments</span>).<span class='number'>0</span>
+        <span class='comment'>// `delete_node` ensures that `Replace(x)` is never returned for the root.</span>
+        <span class='kw'>let</span> (<span class='ident'>result</span>, <span class='ident'>action</span>) <span class='op'>=</span> <span class='ident'>Remove</span>::<span class='ident'>run</span>(<span class='self'>self</span>, <span class='ident'>key</span>, (), <span class='ident'>key_fragments</span>);
+        <span class='macro'>debug_assert</span><span class='macro'>!</span>(<span class='ident'>action</span>.<span class='ident'>is_delete</span>() <span class='op'>||</span> <span class='ident'>action</span>.<span class='ident'>is_do_nothing</span>());
+        <span class='ident'>result</span>
     }
 
     <span class='doccomment'>/// Return an iterator over the keys and values of the Trie.</span>
@@ -1055,6 +1096,11 @@
         }
     }
 
+    <span class='doccomment'>/// Return true if this node is the root of the entire trie.</span>
+    <span class='kw'>fn</span> <span class='ident'>is_root</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='self'>self</span>.<span class='ident'>key</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span>
+    }
+
     <span class='doccomment'>/// Get the value whilst checking a key match.</span>
     <span class='kw'>fn</span> <span class='ident'>value_checked</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>key</span>: <span class='kw-2'>&amp;</span><span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>as_ref</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>kv</span><span class='op'>|</span> {
@@ -1131,13 +1177,13 @@
     <span class='doccomment'>/// Having removed the value from a node, work out if the node itself should be deleted.</span>
     <span class='doccomment'>/// Depending on the number of children, this method does one of three things.</span>
     <span class='doccomment'>///     0 children =&gt; Delete the node if it is valueless, otherwise DoNothing.</span>
-    <span class='doccomment'>///     1 child =&gt; Replace the current node by its child if it is valueless.</span>
+    <span class='doccomment'>///     1 child =&gt; Replace the current node by its child if it has no value and isn&#39;t the root.</span>
     <span class='doccomment'>///     2 or more children =&gt; DoNothing.</span>
     <span class='kw'>fn</span> <span class='ident'>delete_node</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>DeleteAction</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>child_count</span> {
             <span class='number'>0</span> <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>is_some</span>() <span class='op'>=&gt;</span> <span class='ident'>DoNothing</span>,
             <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='ident'>Delete</span>,
-            <span class='number'>1</span> <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>is_none</span>() <span class='op'>=&gt;</span> {
+            <span class='number'>1</span> <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>key_value</span>.<span class='ident'>is_none</span>() <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='self'>self</span>.<span class='ident'>is_root</span>() <span class='op'>=&gt;</span> {
                 <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>child</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>take_only_child</span>();
 
                 <span class='comment'>// Join the child&#39;s key onto the existing one.</span>
