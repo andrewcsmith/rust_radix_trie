@@ -45,15 +45,33 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-836' class='srclink' href='../../src/radix_trie/traversal.rs.html#1-127' title='goto source code'>[src]</a></span></h1>
-<h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+        </span><a id='src-836' class='srclink' href='../../src/radix_trie/traversal.rs.html#1-121' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Customisable, user-implementable traversals for tries.</p>
+
+<p>This module contains 4 traits that allow you to write your own recursive trie traversals. Each
+trait handles the key-splitting logic and result handling required to write a traversal. All of
+the library&#39;s important operations are implemented as traversals (insert, remove, get_ancestor,
+etc).</p>
+
+<p>The trait is basically a massively higher-order function. The <code>Input</code> type allows you
+to define values to be passed down the traversal as it proceeds, while the <code>Output</code> type
+allows you to propogate a value back up the call stack. Look at the source for <code>run</code>.</p>
+
+<h1 id="which-trait?" class='section-header'><a
+                           href="#which-trait?">Which Trait?</a></h1>
+<ul>
+<li><code>Traversal</code> - immutable trie, references not allowed in <code>Output</code> type.</li>
+<li><code>RefTraversal</code> - immutable trie, references allowed in <code>Output</code> type.</li>
+<li><code>TraversalMut</code> - mutable trie, references not allowed in <code>Output</code> type.</li>
+<li><code>RefTraversalMut</code> - mutable trie, references allowed in <code>Output</code> type.</li>
+</ul>
+</div><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                     <tr class=' module-item'>
                         <td><a class='trait' href='trait.RefTraversal.html'
                                title='radix_trie::traversal::RefTraversal'>RefTraversal</a></td>
                         <td class='docblock short'>
-                             <p>Trait capturing a traversal of a trie.</p>
-
+                             
                         </td>
                     </tr>
                 
@@ -61,8 +79,7 @@
                         <td><a class='trait' href='trait.RefTraversalMut.html'
                                title='radix_trie::traversal::RefTraversalMut'>RefTraversalMut</a></td>
                         <td class='docblock short'>
-                             <p>Trait capturing a traversal of a trie.</p>
-
+                             
                         </td>
                     </tr>
                 
@@ -70,8 +87,7 @@
                         <td><a class='trait' href='trait.Traversal.html'
                                title='radix_trie::traversal::Traversal'>Traversal</a></td>
                         <td class='docblock short'>
-                             <p>Trait capturing a traversal of a trie.</p>
-
+                             
                         </td>
                     </tr>
                 
@@ -79,8 +95,7 @@
                         <td><a class='trait' href='trait.TraversalMut.html'
                                title='radix_trie::traversal::TraversalMut'>TraversalMut</a></td>
                         <td class='docblock short'>
-                             <p>Trait capturing a traversal of a trie.</p>
-
+                             
                         </td>
                     </tr>
                 </table></section>

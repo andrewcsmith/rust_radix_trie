@@ -161,13 +161,25 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
 </pre><pre class='rust '>
+<span class='doccomment'>//! Customisable, user-implementable traversals for tries.</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! This module contains 4 traits that allow you to write your own recursive trie traversals. Each</span>
+<span class='doccomment'>//! trait handles the key-splitting logic and result handling required to write a traversal. All of</span>
+<span class='doccomment'>//! the library&#39;s important operations are implemented as traversals (insert, remove, get_ancestor,</span>
+<span class='doccomment'>//! etc).</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! The trait is basically a massively higher-order function. The `Input` type allows you</span>
+<span class='doccomment'>//! to define values to be passed down the traversal as it proceeds, while the `Output` type</span>
+<span class='doccomment'>//! allows you to propogate a value back up the call stack. Look at the source for `run`.</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! # Which Trait?</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! * `Traversal` - immutable trie, references not allowed in `Output` type.</span>
+<span class='doccomment'>//! * `RefTraversal` - immutable trie, references allowed in `Output` type.</span>
+<span class='doccomment'>//! * `TraversalMut` - mutable trie, references not allowed in `Output` type.</span>
+<span class='doccomment'>//! * `RefTraversalMut` - mutable trie, references allowed in `Output` type.</span>
+
 <span class='kw'>use</span> {<span class='ident'>Trie</span>, <span class='ident'>TrieKey</span>, <span class='ident'>NibbleVec</span>};
 <span class='kw'>use</span> <span class='ident'>keys</span>::{<span class='ident'>match_keys</span>, <span class='ident'>KeyMatch</span>};
 
@@ -182,7 +194,7 @@
     (<span class='boolval'>true</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>x</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>y</span>:<span class='ident'>expr</span>) <span class='op'>=&gt;</span> { <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>x</span> };
 }
 
-<span class='comment'>// FIXME: Use () default types once 1.2/1.3 lands.</span>
+<span class='comment'>// FIXME: Use () default input type once 1.2/1.3 lands.</span>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>make_traversal_trait</span> {
     (
         <span class='ident'>name</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span>,
@@ -190,95 +202,71 @@
         <span class='ident'>with_action</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>with_action</span>:<span class='ident'>tt</span>,
         <span class='ident'>mutability</span>: $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>:<span class='ident'>tt</span>)<span class='op'>*</span>
     ) <span class='op'>=&gt;</span> { <span class='macro'>id</span><span class='macro'>!</span> {
-<span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Trait capturing a traversal of a trie.&quot;</span>]</span>
-<span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;&quot;</span>]</span>
-<span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;By providing functions for each of the different cases, it is possible to describe a number&quot;</span>]</span>
-<span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;of different traversals. For now it&#39;s probably best to view the source for `run` to understand&quot;</span>]</span>
-<span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;how best to implement each function.&quot;</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>K</span>: <span class='lifetime'>&#39;a</span>, <span class='ident'>V</span>: <span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>K</span>: <span class='ident'>TrieKey</span> {
-    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Key type to be threaded through by `run`, needn&#39;t be `K` (is often `&amp;&#39;a K`).&quot;</span>]</span>
-    <span class='kw'>type</span> <span class='ident'>Key</span>: <span class='lifetime'>&#39;a</span>;
-    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Value type to be threaded through by `run`, needn&#39;t be `V` (is often `()`).&quot;</span>]</span>
-    <span class='kw'>type</span> <span class='ident'>Value</span>: <span class='lifetime'>&#39;a</span>;
-    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Type returned by the entire traversal, for insert it&#39;s `Option&lt;V&gt;`.&quot;</span>]</span>
-    <span class='kw'>type</span> <span class='prelude-ty'>Result</span>;
+    <span class='kw'>type</span> <span class='ident'>Input</span>: <span class='lifetime'>&#39;a</span>;
+    <span class='kw'>type</span> <span class='ident'>Output</span>;
 
-    <span class='kw'>fn</span> <span class='ident'>default_result</span>() <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span>;
+    <span class='kw'>fn</span> <span class='ident'>default_result</span>() <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span>;
 
     <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>root_fn</span>(<span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>key</span>: <span class='ident'>Self</span>::<span class='ident'>Key</span>, <span class='ident'>value</span>: <span class='ident'>Self</span>::<span class='ident'>Value</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span> {
+    <span class='kw'>fn</span> <span class='ident'>match_fn</span>(<span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>input</span>: <span class='ident'>Self</span>::<span class='ident'>Input</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span> {
         <span class='ident'>Self</span>::<span class='ident'>default_result</span>()
     }
 
     <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
     <span class='kw'>fn</span> <span class='ident'>no_child_fn</span>
     (
-        <span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>key</span>: <span class='ident'>Self</span>::<span class='ident'>Key</span>, <span class='ident'>value</span>: <span class='ident'>Self</span>::<span class='ident'>Value</span>,
+        <span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>input</span>: <span class='ident'>Self</span>::<span class='ident'>Input</span>,
         <span class='ident'>nv</span>: <span class='ident'>NibbleVec</span>, <span class='ident'>bucket</span>: <span class='ident'>usize</span>
-    ) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span> {
+    ) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span> {
+        <span class='ident'>Self</span>::<span class='ident'>default_result</span>()
+    }
+
+    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Defaults to `match_fn`.&quot;</span>]</span>
+    <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
+    <span class='kw'>fn</span> <span class='ident'>child_match_fn</span>(<span class='ident'>child</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>input</span>: <span class='ident'>Self</span>::<span class='ident'>Input</span>, <span class='ident'>nv</span>: <span class='ident'>NibbleVec</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span> {
+        <span class='ident'>Self</span>::<span class='ident'>match_fn</span>(<span class='ident'>child</span>, <span class='ident'>input</span>)
+    }
+
+    <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
+    <span class='kw'>fn</span> <span class='ident'>partial_match_fn</span>(<span class='ident'>child</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>input</span>: <span class='ident'>Self</span>::<span class='ident'>Input</span>, <span class='ident'>nv</span>: <span class='ident'>NibbleVec</span>, <span class='ident'>idx</span>: <span class='ident'>usize</span>)
+    <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span> {
         <span class='ident'>Self</span>::<span class='ident'>default_result</span>()
     }
 
     <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>full_match_fn</span>(<span class='ident'>child</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>key</span>: <span class='ident'>Self</span>::<span class='ident'>Key</span>, <span class='ident'>value</span>: <span class='ident'>Self</span>::<span class='ident'>Value</span>, <span class='ident'>nv</span>: <span class='ident'>NibbleVec</span>)
-    <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span> {
+    <span class='kw'>fn</span> <span class='ident'>first_prefix_fn</span>(<span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>input</span>: <span class='ident'>Self</span>::<span class='ident'>Input</span>, <span class='ident'>nv</span>: <span class='ident'>NibbleVec</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span> {
         <span class='ident'>Self</span>::<span class='ident'>default_result</span>()
     }
 
+    <span class='comment'>// FIXME: Don&#39;t generate action_fn at all (cf. Rust issue #4621).</span>
+    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Note: this function isn&#39;t called in a `RefTraversal`/`RefTraversalMut`.&quot;</span>]</span>
     <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_match_fn</span>
-    (
-        <span class='ident'>child</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>key</span>: <span class='ident'>Self</span>::<span class='ident'>Key</span>, <span class='ident'>value</span>: <span class='ident'>Self</span>::<span class='ident'>Value</span>,
-        <span class='ident'>nv</span>: <span class='ident'>NibbleVec</span>, <span class='ident'>idx</span>: <span class='ident'>usize</span>
-    ) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span> {
-        <span class='ident'>Self</span>::<span class='ident'>default_result</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>first_prefix_fn</span>(<span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>key</span>: <span class='ident'>Self</span>::<span class='ident'>Key</span>, <span class='ident'>value</span>: <span class='ident'>Self</span>::<span class='ident'>Value</span>, <span class='ident'>nv</span>: <span class='ident'>NibbleVec</span>)
-    <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span> {
-        <span class='ident'>Self</span>::<span class='ident'>default_result</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>action_fn</span>(<span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>intermediate</span>: <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span>, <span class='ident'>bucket</span>: <span class='ident'>usize</span>)
-    <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span> {
+    <span class='kw'>fn</span> <span class='ident'>action_fn</span>(<span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>intermediate</span>: <span class='ident'>Self</span>::<span class='ident'>Output</span>, <span class='ident'>bucket</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span> {
         <span class='ident'>intermediate</span>
     }
 
     <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Run the traversal, returning the result.&quot;</span>]</span>
-    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;&quot;</span>]</span>
-    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;Let `key_fragments` be the bits of the key which are valid for insertion *below*&quot;</span>]</span>
-    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;the current node such that the 0th element of `key_fragments` describes the bucket&quot;</span>]</span>
-    <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='string'>&quot;that this key would be inserted into.&quot;</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>run</span>
-    (
-        <span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>,
-        <span class='ident'>key</span>: <span class='ident'>Self</span>::<span class='ident'>Key</span>,
-        <span class='ident'>value</span>: <span class='ident'>Self</span>::<span class='ident'>Value</span>,
-        <span class='kw-2'>mut</span> <span class='ident'>key_fragments</span>: <span class='ident'>NibbleVec</span>
-    )
-    <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='prelude-ty'>Result</span> {
-
+    <span class='kw'>fn</span> <span class='ident'>run</span>(<span class='ident'>trie</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>trie_type</span>, <span class='ident'>input</span>: <span class='ident'>Self</span>::<span class='ident'>Input</span>, <span class='kw-2'>mut</span> <span class='ident'>key_fragments</span>: <span class='ident'>NibbleVec</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span> {
         <span class='kw'>if</span> <span class='ident'>key_fragments</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
-            <span class='kw'>return</span> <span class='ident'>Self</span>::<span class='ident'>root_fn</span>(<span class='ident'>trie</span>, <span class='ident'>key</span>, <span class='ident'>value</span>);
+            <span class='kw'>return</span> <span class='ident'>Self</span>::<span class='ident'>match_fn</span>(<span class='ident'>trie</span>, <span class='ident'>input</span>);
         }
 
         <span class='kw'>let</span> <span class='ident'>bucket</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>get</span>(<span class='number'>0</span>) <span class='kw'>as</span> <span class='ident'>usize</span>;
 
         <span class='kw'>let</span> <span class='ident'>intermediate</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>trie</span>.<span class='ident'>children</span>[<span class='ident'>bucket</span>] {
-            <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Self</span>::<span class='ident'>no_child_fn</span>(<span class='ident'>trie</span>, <span class='ident'>key</span>, <span class='ident'>value</span>, <span class='ident'>key_fragments</span>, <span class='ident'>bucket</span>),
+            <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Self</span>::<span class='ident'>no_child_fn</span>(<span class='ident'>trie</span>, <span class='ident'>input</span>, <span class='ident'>key_fragments</span>, <span class='ident'>bucket</span>),
             <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mut_</span>)<span class='op'>*</span> <span class='ident'>child</span>) <span class='op'>=&gt;</span> {
                 <span class='kw'>match</span> <span class='ident'>match_keys</span>(<span class='kw-2'>&amp;</span><span class='ident'>key_fragments</span>, <span class='kw-2'>&amp;</span><span class='ident'>child</span>.<span class='ident'>key</span>) {
                     <span class='ident'>KeyMatch</span>::<span class='ident'>Full</span> <span class='op'>=&gt;</span>
-                        <span class='ident'>Self</span>::<span class='ident'>full_match_fn</span>(<span class='ident'>child</span>, <span class='ident'>key</span>, <span class='ident'>value</span>, <span class='ident'>key_fragments</span>),
+                        <span class='ident'>Self</span>::<span class='ident'>child_match_fn</span>(<span class='ident'>child</span>, <span class='ident'>input</span>, <span class='ident'>key_fragments</span>),
                     <span class='ident'>KeyMatch</span>::<span class='ident'>Partial</span>(<span class='ident'>i</span>) <span class='op'>=&gt;</span>
-                        <span class='ident'>Self</span>::<span class='ident'>partial_match_fn</span>(<span class='ident'>child</span>, <span class='ident'>key</span>, <span class='ident'>value</span>, <span class='ident'>key_fragments</span>, <span class='ident'>i</span>),
+                        <span class='ident'>Self</span>::<span class='ident'>partial_match_fn</span>(<span class='ident'>child</span>, <span class='ident'>input</span>, <span class='ident'>key_fragments</span>, <span class='ident'>i</span>),
                     <span class='ident'>KeyMatch</span>::<span class='ident'>FirstPrefix</span> <span class='op'>=&gt;</span>
-                        <span class='ident'>Self</span>::<span class='ident'>first_prefix_fn</span>(<span class='ident'>child</span>, <span class='ident'>key</span>, <span class='ident'>value</span>, <span class='ident'>key_fragments</span>),
+                        <span class='ident'>Self</span>::<span class='ident'>first_prefix_fn</span>(<span class='ident'>child</span>, <span class='ident'>input</span>, <span class='ident'>key_fragments</span>),
                     <span class='ident'>KeyMatch</span>::<span class='ident'>SecondPrefix</span> <span class='op'>=&gt;</span> {
                         <span class='kw'>let</span> <span class='ident'>new_key</span> <span class='op'>=</span> <span class='ident'>key_fragments</span>.<span class='ident'>split</span>(<span class='ident'>child</span>.<span class='ident'>key</span>.<span class='ident'>len</span>());
-                        <span class='ident'>Self</span>::<span class='ident'>run</span>(<span class='ident'>child</span>, <span class='ident'>key</span>, <span class='ident'>value</span>, <span class='ident'>new_key</span>)
+                        <span class='ident'>Self</span>::<span class='ident'>run</span>(<span class='ident'>child</span>, <span class='ident'>input</span>, <span class='ident'>new_key</span>)
                     }
                 }
             }
