@@ -45,8 +45,8 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-22' class='srclink' href='../src/radix_trie/keys.rs.html#12-15' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait TrieKey: <a class='trait' href='http://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> {
+        </span><a id='src-21' class='srclink' href='../src/radix_trie/keys.rs.html#11-14' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait TrieKey: <a class='trait' href='http://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> {
     fn <a href='#tymethod.encode' class='fnname'>encode</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt;;
 }</pre><div class='docblock'><p>Trait for types which can be used to key a Radix Trie.</p>
 
@@ -63,8 +63,7 @@ encountering a conflict. Be careful!</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;'a&gt; <a class='trait' href='../radix_trie/trait.TrieKey.html' title='radix_trie::TrieKey'>TrieKey</a> for &amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></li>
-<li><code>impl <a class='trait' href='../radix_trie/trait.TrieKey.html' title='radix_trie::TrieKey'>TrieKey</a> for <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a></code></li>
+    <li><code>impl&lt;T&gt; <a class='trait' href='../radix_trie/trait.TrieKey.html' title='radix_trie::TrieKey'>TrieKey</a> for T <span class='where'>where T: <a class='trait' href='http://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt;&gt; + <a class='trait' href='http://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a></span></code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/radix_trie/trait.TrieKey.js">
                       </script></section>

@@ -642,12 +642,17 @@
 <span id="600">600</span>
 <span id="601">601</span>
 <span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A wonderful, fast, safe, generic radix trie implementation.</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! To get started, see the docs for `Trie` below.</span>
 
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>nibble_vec</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span> <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>quickcheck</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span> <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>rand</span>;
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>nibble_vec</span>::<span class='ident'>NibbleVec</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>keys</span>::<span class='ident'>TrieKey</span>;
@@ -661,6 +666,7 @@
 <span class='kw'>mod</span> <span class='ident'>iter</span>;
 <span class='attribute'>#[<span class='ident'>macro_use</span>]</span> <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>traversal</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span> <span class='kw'>mod</span> <span class='ident'>test</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span> <span class='kw'>mod</span> <span class='ident'>qc_test</span>;
 
 <span class='kw'>const</span> <span class='ident'>BRANCH_FACTOR</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>16</span>;
 
